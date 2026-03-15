@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>打卡助手</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="打卡助手">
+<meta name="theme-color" content="#f5f0eb">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,sans-serif;background:#f5f0eb;color:#333;max-width:500px;margin:0 auto;padding:0 16px 100px}
+h1{text-align:center;margin:16px 0 12px;font-size:22px}
+.tabs{display:flex;background:#fff;border-radius:12px;padding:4px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.tab{flex:1;text-align:center;padding:10px;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer;color:#999;border:none;background:none}
+.tab.ar{background:#e67e22;color:#fff}.tab.af{background:#27ae60;color:#fff}
+.pn{display:none}.pn.on{display:block}
+.sts{display:flex;justify-content:space-around;background:#fff;border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.st{text-align:center}.sn{font-size:26px;font-weight:bold;color:#e67e22}.sn.g{color:#27ae60}
+.sl{font-size:11px;color:#999;margin-top:2px}
+.cd{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.bt{border:none;border-radius:8px;padding:8px 16px;font-size:14px;cursor:pointer;color:#fff;background:#e67e22}
+.bt:active{opacity:.8}.bs{padding:6px 12px;font-size:12px}.bd{background:#ccc}.bg{background:#27ae60}
+.ck{width:100%;padding:14px;font-size:16px;margin-bottom:12px;border:none;border-radius:8px;color:#fff;cursor:pointer}
+.ck:active{opacity:.8}.ck.dn{background:#95a5a6}
+.br{width:100%;height:8px;background:#eee;border-radius:4px;margin-top:6px;overflow:hidden}
+.fl{height:100%;border-radius:4px;transition:width .3s}
+.fl.o{background:linear-gradient(90deg,#e67e22,#f39c12)}.fl.gr{background:linear-gradient(90deg,#27ae60,#2ecc71)}
+.mt{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.pg{font-size:13px;color:#999}.ac{display:flex;gap:6px}
+.ep{text-align:center;color:#bbb;padding:40px 0}
+.cl{background:#fff;border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ch span{font-size:15px;font-weight:bold}
+.cn{background:none;border:1px solid #ddd;border-radius:6px;width:30px;height:30px;font-size:16px;cursor:pointer;color:#666}
+.cw{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;color:#999;margin-bottom:4px}
+.cs{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+.cy{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-size:12px;position:relative;cursor:default}
+.cy.em{visibility:hidden}.cy.td{border:2px solid #e67e22}
+.cy .dt{position:absolute;top:2px;right:2px;width:5px;height:5px;border-radius:50%}
+.cy .sb{font-size:8px;color:#999;margin-top:1px}
+.dd{background:#fef9f3;border-radius:10px;padding:10px;margin-top:10px;font-size:13px;color:#666;display:none}
+.dd.sh{display:block}.dt-t{font-weight:bold;color:#333;margin-bottom:6px}
+.dt-i{padding:3px 0;border-bottom:1px dashed #e8e0d6}.dt-i:last-child{border:none}
+.mo{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:10;align-items:center;justify-content:center}
+.mo.sh{display:flex}
+.md{background:#fff;border-radius:16px;padding:20px;width:90%;max-width:400px}
+.md h2{margin-bottom:14px;font-size:17px}
+.md input,.md select{width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:10px;-webkit-appearance:none}
+.md input:focus{outline:none;border-color:#e67e22}
+.mb{display:flex;gap:10px}.mb .bt{flex:1}
+.fb{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;color:#fff;font-size:30px;border:none;box-shadow:0 4px 12px rgba(0,0,0,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;background:#e67e22}
+.fb:active{transform:scale(.95)}.fb.gr{background:#27ae60}
+.er{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px}
+.er input{width:80px;padding:8px;border:1px solid #ddd;border-radius:8px;font-size:14px;text-align:center}
+.er input:focus{outline:none;border-color:#27ae60}
+</style>
+</head>
+<body>
+<h1>📖💪 打卡助手</h1>
+<div class="tabs">
+  <button class="tab ar" id="tr" onclick="sw('r')">📖 读书</button>
+  <button class="tab" id="tf" onclick="sw('f')">💪 健身</button>
+</div>
+
+<div class="pn on" id="pr">
+  <div class="sts">
+    <div class="st"><div class="sn" id="rb">0</div><div class="sl">在读</div></div>
+    <div class="st"><div class="sn" id="rc">0</div><div class="sl">打卡天</div></div>
+    <div class="st"><div class="sn" id="rs">0</div><div class="sl">连续</div></div>
+  </div>
+  <div class="cl"><div class="ch"><button class="cn" onclick="cm(-1)">‹</button><span id="rct"></span><button class="cn" onclick="cm(1)">›</button></div>
+    <div class="cw"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>
+    <div class="cs" id="rcd"></div><div class="dd" id="rdd"></div>
+  </div>
+  <div id="bl"></div>
+</div>
+
+<div class="pn" id="pf">
+  <div class="sts">
+    <div class="st"><div class="sn g" id="fc">0</div><div class="sl">锻炼天</div></div>
+    <div class="st"><div class="sn g" id="fs">0</div><div class="sl">连续</div></div>
+    <div class="st"><div class="sn g" id="fe">0</div><div class="sl">项目数</div></div>
+  </div>
+  <div class="cl"><div class="ch"><button class="cn" onclick="fm(-1)">‹</button><span id="fct"></span><button class="cn" onclick="fm(1)">›</button></div>
+    <div class="cw"><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div></div>
+    <div class="cs" id="fcd"></div><div class="dd" id="fdd"></div>
+  </div>
+  <div id="fl"></div>
+</div>
+
+<div class="mo" id="m1"><div class="md"><h2>添加新书</h2>
+  <input id="i1" placeholder="书名"><input type="number" id="i2" placeholder="总页数">
+  <div class="mb"><button class="bt" onclick="ab()">添加</button><button class="bt bd" onclick="hd('m1')">取消</button></div>
+</div></div>
+
+<div class="mo" id="m2"><div class="md"><h2>更新进度</h2>
+  <input type="number" id="i3" placeholder="读到第几页">
+  <div class="mb"><button class="bt" onclick="up()">确认</button><button class="bt bd" onclick="hd('m2')">取消</button></div>
+</div></div>
+
+<div class="mo" id="m3"><div class="md"><h2>添加运动项目</h2>
+  <input id="i4" placeholder="名称，如：跑步、俯卧撑">
+  <select id="i5"><option value="分钟">分钟</option><option value="次">次</option><option value="组">组</option><option value="公里">公里</option><option value="个">个</option></select>
+  <div class="mb"><button class="bt bg" onclick="ae()">添加</button><button class="bt bd" onclick="hd('m3')">取消</button></div>
+</div></div>
+
+<button class="fb" id="fab" onclick="fc()">+</button>
+<script>
+const K='app_v3';let ct='r',ei=null,rY,rM,fY,fM;
+const nw=new Date();rY=fY=nw.getFullYear();rM=fM=nw.getMonth();
+
+function L(){const d={books:[],rCk:{},exs:[],fCk:{}};const r=localStorage.getItem(K);if(!r)return d;const p=JSON.parse(r);if(Array.isArray(p.checkins)){const o={};p.checkins.forEach(x=>o[x]={pages:0,books:[]});p.rCk=o;delete p.checkins}return{...d,...p}}
+function S(d){localStorage.setItem(K,JSON.stringify(d))}
+function T(){return new Date().toISOString().slice(0,10)}
+function sk(ck){const ds=Object.keys(ck).sort().reverse();if(!ds.length)return 0;let s=0,d=new Date();for(let i=0;i<400;i++){const c=new Date(d);c.setDate(c.getDate()-i);if(ck[c.toISOString().slice(0,10)])s++;else break}return s}
+
+function sw(t){ct=t;document.getElementById('tr').className='tab'+(t==='r'?' ar':'');document.getElementById('tf').className='tab'+(t==='f'?' af':'');document.getElementById('pr').className='pn'+(t==='r'?' on':'');document.getElementById('pf').className='pn'+(t==='f'?' on':'');document.getElementById('fab').className=t==='r'?'fb':'fb gr';R()}
+function sh(id){document.getElementById(id).classList.add('sh')}
+function hd(id){document.getElementById(id).classList.remove('sh')}
+function fc(){ct==='r'?sh('m1'):sh('m3')}
+
+// 日历
+function cal(y,m,ck,tp){
+  const f=new Date(y,m,1).getDay(),ds=new Date(y,m+1,0).getDate(),t=T();let h='';
+  for(let i=0;i<f;i++)h+='<div class="cy em"></div>';
+  for(let d=1;d<=ds;d++){
+    const s=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const info=ck[s],isT=s===t,isC=!!info;
+    let c='cy';if(isT)c+=' td';
+    let bg='',clr='',dot='',sub='';
+    if(isC){
+      if(tp==='r'){bg='background:#fef3e6';clr='color:#e67e22';dot='<span class="dt" style="background:#e67e22"></span>';if(info.pages)sub=`<span class="sb">${info.pages}页</span>`}
+      else{bg='background:#e8f8ef';clr='color:#27ae60';dot='<span class="dt" style="background:#27ae60"></span>';if(info.items)sub=`<span class="sb">${info.items.length}项</span>`}
+    }
+    h+=`<div class="${c}" style="${bg};${clr};font-weight:${isC?'bold':'normal'}" onclick="dd('${s}','${tp}')">${dot}<span>${d}</span>${sub}</div>`;
+  }
+  return h;
+}
+
+function dd(s,tp){
+  const data=L(),el=document.getElementById(tp==='r'?'rdd':'fdd');
+  if(tp==='r'){
+    const info=data.rCk[s];
+    if(!info){el.innerHTML=`<div class="dt-t">📅 ${s}</div><div>没有记录</div>`}
+    else{let b=info.books&&info.books.length?info.books.map(x=>`<div class="dt-i">📕 ${x.name}：${x.current}/${x.total}页</div>`).join(''):'<div class="dt-i">已打卡 ✅</div>';
+    el.innerHTML=`<div class="dt-t">📅 ${s}　累计 ${info.pages} 页</div>${b}`}
+  }else{
+    const info=data.fCk[s];
+    if(!info){el.innerHTML=`<div class="dt-t">📅 ${s}</div><div>没有记录</div>`}
+    else{let b=info.items.map(x=>`<div class="dt-i">🏋️ ${x.name}：${x.value} ${x.unit}</div>`).join('');
+    el.innerHTML=`<div class="dt-t">📅 ${s}　完成 ${info.items.length} 项</div>${b}`}
+  }
+  el.className='dd sh';
+}
+
+function cm(o){rM+=o;if(rM<0){rM=11;rY--}if(rM>11){rM=0;rY++}R()}
+function fm(o){fM+=o;if(fM<0){fM=11;fY--}if(fM>11){fM=0;fY++}R()}
+
+// 读书
+function rR(){
+  const d=L(),act=d.books.filter(b=>!b.finished);
+  document.getElementById('rb').textContent=act.length;
+  document.getElementById('rc').textContent=Object.keys(d.rCk).length;
+  document.getElementById('rs').textContent=sk(d.rCk);
+  document.getElementById('rct').textContent=`${rY}年${rM+1}月`;
+  document.getElementById('rcd').innerHTML=cal(rY,rM,d.rCk,'r');
+  const el=document.getElementById('bl');
+  if(!d.books.length){el.innerHTML='<div class="ep">点右下角 + 添加书籍</div>';return}
+  const done=!!d.rCk[T()];
+  let h=`<button class="ck${done?' dn':''}" style="background:${done?'#95a5a6':'#e67e22'}" onclick="rck()" ${done?'disabled':''}>${done?'✅ 今日已打卡':'📝 读书打卡'}</button>`;
+  h+=d.books.map(b=>{const p=Math.min(100,Math.round(b.current/b.total*100));
+    return`<div class="cd"><div style="font-size:16px;font-weight:bold">${b.name} ${p===100?'✅':''}</div><div class="br"><div class="fl o" style="width:${p}%"></div></div><div class="mt"><span class="pg">${b.current}/${b.total}页(${p}%)</span><div class="ac"><button class="bt bs" onclick="ou('${b.id}')">更新</button><button class="bt bs bd" onclick="rb2('${b.id}')">删除</button></div></div></div>`}).join('');
+  el.innerHTML=h;
+}
+function ab(){const n=document.getElementById('i1').value.trim(),t=parseInt(document.getElementById('i2').value);if(!n||!t||t<=0)return alert('请填写完整');const d=L();d.books.push({id:Date.now()+'',name:n,total:t,current:0});S(d);hd('m1');document.getElementById('i1').value='';document.getElementById('i2').value='';R()}
+function ou(id){ei=id;const d=L(),b=d.books.find(x=>x.id===id);document.getElementById('i3').value=b.current;sh('m2')}
+function up(){const p=parseInt(document.getElementById('i3').value),d=L(),b=d.books.find(x=>x.id===ei);if(!b||isNaN(p)||p<0||p>b.total)return alert('页数不对');b.current=p;if(p===b.total)b.finished=true;S(d);hd('m2');R()}
+function rb2(id){if(!confirm('确定删除？'))return;const d=L();d.books=d.books.filter(x=>x.id!==id);S(d);R()}
+function rck(){const d=L(),t=T();if(d.rCk[t])return;d.rCk[t]={pages:d.books.reduce((s,b)=>s+b.current,0),books:d.books.map(b=>({name:b.name,current:b.current,total:b.total}))};S(d);R()}
+
+// 健身
+function fR(){
+  const d=L();
+  document.getElementById('fc').textContent=Object.keys(d.fCk).length;
+  document.getElementById('fs').textContent=sk(d.fCk);
+  document.getElementById('fe').textContent=d.exs.length;
+  document.getElementById('fct').textContent=`${fY}年${fM+1}月`;
+  document.getElementById('fcd').innerHTML=cal(fY,fM,d.fCk,'f');
+  const el=document.getElementById('fl');
+  if(!d.exs.length){el.innerHTML='<div class="ep">点右下角 + 添加运动项目</div>';return}
+  const done=!!d.fCk[T()];
+  // 运动项目输入
+  let h=`<div class="cd"><div style="font-weight:bold;margin-bottom:10px">今日锻炼记录</div>`;
+  d.exs.forEach((e,i)=>{
+    const prev=done&&d.fCk[T()]?d.fCk[T()].items.find(x=>x.name===e.name):null;
+    h+=`<div class="er"><span style="min-width:60px;font-weight:bold">${e.name}</span><input type="number" id="ev${i}" placeholder="0" value="${prev?prev.value:''}"><span style="color:#999;font-size:12px">${e.unit}</span><button class="bt bs bd" onclick="re(${i})" style="font-size:10px">✕</button></div>`;
+  });
+  h+=`<button class="ck${done?' dn':''}" style="background:${done?'#95a5a6':'#27ae60'};margin-top:8px" onclick="fck()" ${done?'disabled':''}>${done?'✅ 今日已打卡':'💪 健身打卡'}</button></div>`;
+  el.innerHTML=h;
+}
+function ae(){const n=document.getElementById('i4').value.trim(),u=document.getElementById('i5').value;if(!n)return alert('请输入名称');const d=L();if(d.exs.find(x=>x.name===n))return alert('已存在');d.exs.push({name:n,unit:u});S(d);hd('m3');document.getElementById('i4').value='';R()}
+function re(i){if(!confirm('删除该项目？'))return;const d=L();d.exs.splice(i,1);S(d);R()}
+function fck(){const d=L(),t=T();if(d.fCk[t])return;const items=[];d.exs.forEach((e,i)=>{const v=parseFloat(document.getElementById('ev'+i).value);if(v&&v>0)items.push({name:e.name,value:v,unit:e.unit})});if(!items.length)return alert('至少填一项运动数据');d.fCk[t]={items};S(d);R()}
+
+function R(){rR();fR()}
+R();
+</script>
+<script>
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
